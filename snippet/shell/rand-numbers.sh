@@ -13,11 +13,11 @@ random_u32() {
 }# unsigned 32-bit
 
 random_s16() { 
-    od -An -td2 -N2 <&19;
+    od -An -td2 -N2 <&19
 }# signed 16-bit
 
 random_u16() { 
-    od -An -tu2 -N2 <&19;
+    od -An -tu2 -N2 <&19
 }# unsigned 16-bit
 
 random_u31() { 
