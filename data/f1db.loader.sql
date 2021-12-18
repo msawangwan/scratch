@@ -1,0 +1,13 @@
+\copy status from './local/f1db_csv/status.csv' with csv header;
+\copy seasons from './local/f1db_csv/seasons.csv' with csv header;
+\copy circuits from './local/f1db_csv/circuits.csv' with csv header;
+\copy races from './local/f1db_csv/races.csv' with csv header;
+\copy drivers from './local/f1db_csv/drivers.csv' with csv header;
+\copy constructors from './local/f1db_csv/constructors.csv' with csv header;
+\copy constructor_results from './local/f1db_csv/constructor_results.csv' with csv header;
+\copy constructor_standings from './local/f1db_csv/constructor_standings.csv' with csv header;
+\copy driver_standings from './local/f1db_csv/driver_standings.csv' with csv header;
+\copy lap_times from './local/f1db_csv/lap_times.csv' with csv header;
+\copy pit_stops from './local/f1db_csv/pit_stops.csv' with csv header;
+\copy qualifying from './local/f1db_csv/qualifying.csv' with csv header;
+\copy results from './local/f1db_csv/results.csv' with csv header;
