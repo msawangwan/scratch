@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Etch-A-Sketch</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        a,
+        a:visited,
+        a:focus,
+        a:hover {
+            text-decoration: none;
+            outline: red;
+            color: white;
+        }
+
+        button {
+            background: inherit;
+            font-family: inherit;
+            color: inherit;
+            font-size: inherit;
+            border: none;
+        }
+
+        button:active,
+        button:hover,
+        button:visited {
+            text-decoration: none;
+        }
+
+        .navbar {
+            display: -ms-grid;
+            -ms-grid-columns: minmax(260px, 1.9fr) minmax(250px, 0.7fr) minmax(125px, 0.4fr);
+            -ms-grid-rows: 50px 45px;
+
+            display: grid;
+            grid-template-columns: minmax(260px, 1.9fr) minmax(250px, 0.7fr) minmax(125px, 0.4fr);
+            grid-template-rows: 50px 45px;
+            grid-column-gap: 16px;
+            background: red;
+            color: white;
+            font-family: 'Marck Script', cursive;
+            font-size: 2.5em;
+            padding-top: 20px;
+        }
+
+        .navtext {
+            padding-left: 33px;
+            padding-top: 8px;
+            z-index: 1;
+        }
+
+        .layout {
+            justify-self: end;
+        }
+
+
+        .fade {
+            grid-column: 1 / 4;
+            background: linear-gradient(red, white);
+        }
+
+        .container {
+            display: grid;
+            width: 960px;
+            height: 960px;
+            border: 1px solid black;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 32px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+        }
+
+        #test {
+            border: 1px solid black;
+        }
+
+        .box {
+            background-color: black;
+            opacity: 0;
+        }
+    </style>
+    <script>
+        function createGrid(numBoxes = 16) {
+            let columns = `repeat(${numBoxes}, 1fr)`;
+            let rows = `repeat(${numBoxes}, 1fr)`;
+            container.style.gridTemplateColumns = columns;
+            container.style.gridTemplateRows = rows;
+            let totalSquares = numBoxes * numBoxes;
+
+            for (let i = 0; i < totalSquares; i++) {
+                let box = document.createElement('div');
+                box.setAttribute('class', 'box');
+                container.appendChild(box);
+                box.style.border = '1px solid black';
+                box.addEventListener('mouseover', makeDarker);
+            }
+        }
+
+        function resetGrid() {
+            clearGrid();
+            createGrid();
+        }
+
+        function chooseGrid() {
+            let num = prompt('Please enter a number between 2 and 100');
+            if (Number(num) >= 2 && Number(num) <= 100) {
+                clearGrid();
+                createGrid(Number(num));
+            } else {
+                alert('Follow directions, yo. Try again.');
+            }
+        }
+
+        function makeDarker() {
+            let currentOp = this.style.opacity;
+            let newOp = Number(currentOp) + 0.1;
+            this.style.opacity = newOp;
+        }
+
+        function clearGrid() {
+            document.querySelectorAll('.box').forEach(function (div) {
+                container.removeChild(div);
+            });
+        }
+
+        const whatGrid = document.getElementById('choose');
+        whatGrid.addEventListener('click', chooseGrid);
+
+        const reset = document.getElementById('reset');
+        reset.addEventListener('click', resetGrid);
+
+        const container = document.querySelector('.container');
+
+        createGrid();
+    </script>
+</head>
+
+<body>
+    <div class="navbar">
+        <div class="brand navtext">Etch-A-Sketch</div>
+        <div class="layout navtext"><button type="button" id="choose">Choose Grid</button></div>
+        <div class="reset navtext"><button type="button" id="reset">Reset</button></div>
+        <div class="fade"></div>
+    </div>
+
+    <div class="container">
+
+    </div>
+
+    <script type="text/javascript" src="scripts/etch.js"></script>
+</body>
+
+</html>
+
+<button id="action-button" type="button" role="button">Button</button>
