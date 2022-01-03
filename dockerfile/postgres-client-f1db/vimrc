@@ -1,0 +1,312 @@
+" --------------------------------
+"
+" vim configuration.
+"
+" --------------------------------
+
+"'"
+"' glyph reference:
+"'
+"' ❯
+"'"
+
+"'"
+"' command reference:
+"'
+"' CTRL-D (scroll [D]own)
+"' CTRL-U (scroll [U]p)
+"'"
+
+syntax on          " enable native syntax highlighting where supported
+set termguicolors  " enable colors
+colorscheme desert " specify a color palette
+
+" comments render in italics, must be declared after colorscheme
+" see: https://stackoverflow.com/questions/3494435/vimrc-make-comments-italic
+let &t_ZH="\e[3m"
+let &t_ZR="\e[23m"
+highlight Comment cterm=italic
+
+filetype on " autodetect language mode based on file extension
+
+" --------------------------------
+"
+" Functions used by autocmd statements and
+" mapping commands.
+"
+" --------------------------------
+
+" TogglePasteMode toggles between `:set nopaste` and `:set paste`
+function! TogglePasteMode()
+	if(&paste == 0)
+		set paste
+		echo "set paste"
+	else
+		set nopaste
+		echo "set nopaste"
+	endif
+endfunction
+
+" FoldIndentProper is the same as setting `foldmethod=indent`
+" except in correctly takes into account empty lines between
+" statements that belong in the same fold group
+function! FoldIndentProper()
+	let thisline = getline(v:lnum)
+
+	if thisline =~? '\v^\s*$'
+		return '-1'
+	endif
+
+	return indent(v:lnum) / &shiftwidth
+endfunction
+
+" Use a custom function for the 'foldmethod' option
+" when working in javascript files
+function! FoldJavascript()
+	let thisline = getline(v:lnum)
+
+	if thisline =~? '\v^\s*$'
+		return '-1'
+	endif
+
+	if thisline =~ '^import.*$'
+		return 1
+	endif
+
+	return indent(v:lnum) / &shiftwidth
+endfunction
+
+set incsearch                                                " enable incremental search mode
+set nowrap                                                   " don't automatically wrap long lines
+set number                                                   " show line numbers in the gutter
+set foldcolumn=1                                             " render a gutter to show fold symbols
+set foldlevelstart=0                                         " define what level of indent defines the start of a foldable section
+set autoindent                                               " autoindent for all file types
+set smartindent                                              " smart indent (eg. tab over in a function)
+set expandtab                                                " tabs to whitespace
+set showmatch                                                " show balanced brace constructs
+set matchtime=2                                              " how many tenths of a second to blink matching brackets for
+set showmode                                                 " show the current mode in the status line
+set showcmd                                                  " show the last command executed in the status line
+set wildmode=list:longest                                    " command line completion
+set wildmenu                                                 " command line completion
+set laststatus=2                                             " status line always visible
+set statusline=[%04l,%04v][%p%%][%L]\ [%{&ff}]%y\ %F%m%r%h%w " formatted status line
+set statusline+=%{&paste?'PASTE':''}                         " append to status: line indicate current state of the 'paste' option
+" set statusline+=%F\ %l\:%c                                 " show row and column numbers in the status panel
+
+"'"
+" Example of the `statusline` format string and breakdown:
+"
+"              %F%m%r%h%w\ [%L][%{&ff}]%y[%p%%][%04l,%04v]
+"              | | | | |  |   |      |  |     |    |
+"              | | | | |  |   |      |  |     |    +-- current column
+"              | | | | |  |   |      |  |     +-- current line
+"              | | | | |  |   |      |  +-- current % into file
+"              | | | | |  |   |      +-- current syntax
+"              | | | | |  |   +-- current file format
+"              | | | | |  +-- number of lines
+"              | | | | +-- preview flag
+"              | | | +-- help flag
+"              | | +-- readonly flag
+"              | +-- modified flag
+"              +-- full file path
+"'"
+
+set fixeol                    " append a trailing newline as the last line in a file
+set fileformat=unix           " set the file mode (changes the way newlines are treated)
+set guicursor=i:ver10-iCursor " use a thin cursor in insert mode
+set scrolloff=10              " control the number of lines visible while scrolling (top / bottom)
+set list                      " enable the 'lcs' option to render special characters to represent tabs and whitespace
+"'"
+"'" see more on rendering whitespace chars:
+"'" - https://stackoverflow.com/questions/40498265/show-space-character-via-listchars-only-for-leading-spaces
+"'"
+set listchars=tab:»· " renders the sequence off characters to display [tab,space,trailing] characters
+"set listchars=tab:»·,eol:×    " renders the sequence off characters to display [tab,space,trailing] characters
+"set listchars=tab:»·,eol:⊧
+"set listchars=tab:❯·,eol:·
+"set listchars=tab:»·,eol:·
+"set listchars=tab:»·
+"set listchars=tab:»,eol:·
+"set listchars=tab:»·,space:·
+"set listchars=tab:\|_,space:\.
+"set listchars=tab:\|->,space:\.
+
+set viminfo='10,\"50,:20,%,n~/.viminfo " remember commands/searches/marks
+set undodir=~/.vimundo
+set undofile
+
+au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+
+" overrides by filetype
+augroup filetype_overrides
+	autocmd!
+
+	" python
+	autocmd BufNewFile,BufRead *.py
+		\ let python_highlight_all=1 |
+		\ let c_space_errors=1       |
+		\ setlocal sw=4              |
+		\ setlocal ts=4              |
+		\ setlocal sts=4             |
+		\ setlocal tw=80
+
+	" markdown
+	autocmd BufNewFile,BufRead *.md
+		\ setlocal sw=4  |
+		\ setlocal ts=4  |
+		\ setlocal sts=4 |
+		\ setlocal tw=240
+
+	" c like languages
+	autocmd BufNewFile,BufRead *.c,*cpp
+		\ let c_space_errors=1 |
+		\ setlocal filemode=c
+
+	" javascript, json as well as most common frontend languages
+	autocmd BufNewFile,BufRead *.html,*.js,*.jsx,*.esm,*ts,*tsx,*.css,*.sass,*json,*.yaml,*.yml,*.tf
+		\ setlocal sw=2  |
+		\ setlocal ts=2  |
+		\ setlocal sts=2 |
+		\ setlocal tw=160
+
+	" shell (bash/zsh etc)
+	autocmd BufNewFile,BufRead *.sh,*.bash,*.shell,*.zsh,*.vimrc,*.rc,*rc
+		\ setlocal nocompatible |
+		\ setlocal sw=4         |
+		\ setlocal ts=4         |
+		\ setlocal sts=4        |
+		\ setlocal tw=160       |
+		\ setlocal noexpandtab
+
+	" work around when using vim to develop with webpack dev server
+	autocmd BufNewFile,BufReadPre *.js set backupcopy=yes
+
+	" augment the 'indent' fold mode, adding support for blank links between statements
+	autocmd Filetype * setlocal foldmethod=expr
+	autocmd Filetype * setlocal foldexpr=FoldIndentProper()
+
+	" treat code folding in javascript files as a special case
+	autocmd FileType javascript setlocal foldmethod=expr
+	autocmd FileType javascript setlocal foldexpr=FoldJavascript()
+augroup END
+
+" highlight trailing newlines in realtime
+augroup highlight_trailing_whitespace
+	"
+	" see the following regarding this technique:
+	" https://vim.fandom.com/wiki/Highlight_unwanted_spaces
+	"
+
+	autocmd ColorScheme * highlight
+		\ ExtraWhitespace       |
+		\ ctermbg=red guibg=red
+
+	" use a red color scheme to highlight trailing newlines
+	" highlight ExtraWhitespace ctermbg=red guibg=red
+
+	" use a green color scheme to highlight trailing newlines
+	"highlight ExtraWhitespace ctermbg=darkgreen guibg=lightgreen
+
+	" use a orange color scheme to highlight trailing newlines
+	"highlight ExtraWhitespace ctermbg=yellow guibg=yellow
+
+	" use a magenta color scheme to highlight trailing newlines
+	highlight ExtraWhitespace ctermbg=magenta guibg=magenta
+
+	match ExtraWhitespace /\s\+\%#\@<!$/
+augroup END
+
+" runs `find-and-replace` when a buffer is open or closed to trim trailing whitespace
+augroup trim_trailing_whitespace
+	autocmd!
+
+	autocmd BufRead,BufWrite
+		\ *.css,*.html,*.js,*.jsx,*.md,*.py,*.sass,*.sh,*.tf,*.ts,*.tsx,*rc
+		\ :%s/\s\+$//e
+augroup END
+
+" --------------------------------
+"
+" format for re-mapping keys to specific commands:
+" nnoremap <$KEY> $COMMAND
+"
+" format for creating commands utilizing the <Leader> custom modifier key:
+" nnoremap <Leader>$KEY_COMBINATION COMMAND<CR>
+"
+" --------------------------------
+
+" semi-colon is the new colon
+nnoremap ; :
+
+" custom modifier key
+let mapleader=","
+
+" re-map 'undo all changes since file open' to 'undo last change'
+noremap U <C-R>
+
+" edit vim configuration
+nnoremap <leader>e :e $MYVIMRC<CR>
+" reload vim configuration
+nnoremap <leader>r :so $MYVIMRC<CR>
+" quickly enter the command line prompt
+nnoremap <Space> :
+
+" replace tabs with spaces in the current buffer
+nnoremap <leader>T :retab<CR>
+" replace spaces with tabs
+nnoremap <leader>t :retab!<CR>
+
+" save the current buffer
+nnoremap <leader>s :w<CR>
+" save the current buffer and close it
+nnoremap <leader>S :wq<CR>
+" close the current buffer without saving it
+nnoremap <leader>q :q<CR>
+" force-close the current buffer without saving it
+nnoremap <leader>Q :q!<CR>
+
+" toggle folds at the current level (where the cursor is under)
+nnoremap <leader>f za
+" open all folds in a buffer
+nnoremap <leader>F zR
+" close all folds in a buffer
+nnoremap <leader>FF zM
+
+" copy the current line and paste it onto the line below
+nnoremap Y 0y$o<esc>p
+" copy (or cut) a line that can be pasted inline somewhere else in the document (as opposed to pasting to a newline)
+nnoremap <leader>y 0v$hy<esc>
+nnoremap <leader>x 0v$hx<esc>
+" copy (or cut) a line then paste that same line onto the end of the next line
+nnoremap <leader>Y 0v$hyjA<space><esc>p
+nnoremap <leader>X 0v$hxjA<space><esc>p
+" add a newline without going into insert mode
+nnoremap <silent> <leader>o o<esc>
+nnoremap <silent> <leader>O O<esc>
+
+" start a `/**/` comment block
+vnoremap <leader>8 :norm i//<esc>
+" insert a `"` character on each line in the selected block
+vnoremap <leader>' :norm i"<esc>
+" insert a `#` character on each line in the selected block
+vnoremap <leader>3 :norm i#<esc>
+" insert a `//` character on each line in the selected block
+vnoremap <leader>/ :norm i//<esc>
+" insert a `--` character on each line in the selected block
+vnoremap <leader>- :norm i--<esc>
+
+" invoke the toggle function for paste/nopaste
+map <leader>p :call TogglePasteMode()<CR>
+
+" insert newline below/above without entering insert mode
+map <F8> o<Esc>
+map <F9> O<Esc>
+
+if &term=="xterm"
+    set t_Co=8
+    set t_Sb=^[[4%dm
+    set t_Sf=^[[3%dm
+endif
+
