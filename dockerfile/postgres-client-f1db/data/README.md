@@ -1,14 +1,14 @@
-# f1db
+# F1 DB
 
 * * *
 
-A dataset based on `formula1`.
+A `Formula 1` data set for `postgres`.
 
-Load into `postgres` by:
+## Usage
 
-- creating the directory `local/`
-- un-zipping all csvs into the directory `local/`
-- prepare and run `.sql` scripts in order
-  - find and replace all occurences of `\N` with ``
+- Build an image from the `Dockerfile`
+- Spool up a `postgres` container if necessary
+- Spool up an image of the previously built `Dockerfile`
+- Run `.sql` scripts in the order given by filename, note that:
   - the first will create tables in the target db
   - the second loads them
