@@ -22,3 +22,21 @@ insert into ranges (tmin,tmax,r, sid) values
         (26,29,4.00,1),
 
 commit;
+
+-- Example queries:
+--
+-- CTE:
+--
+--      with multiplier as (
+--              select   count(*) as c, m.sid as id
+--              from     members m
+--              join     subscribers s
+--              on       m.sid = s.sid
+--              where    m.sid = 1
+--              group by m.sid
+--      )
+--      select r.r * m.c
+--      from   multiplier m, ranges r
+--      where  r.sid   = m.id
+--      and    r.tmin <= m.c
+--      and    m.c    <= r.tmax;
