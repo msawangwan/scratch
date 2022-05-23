@@ -1,0 +1,154 @@
+let captcha = document.querySelector('.captcha');
+let grid = document.querySelector('.captcha .grid');
+let done = document.querySelector('.captcha button');
+let results = document.querySelector('.results');
+// there will be a 4x4 grid of black/white squares
+// 13 will be real websites, 3 will be fake
+
+// some websites we want to see if the user has visited
+let websites = [
+  "https://www.google.com/",
+  "https://www.youtube.com/",
+  "https://www.reddit.com/",
+  "https://news.ycombinator.com/",
+  "https://www.facebook.com/",
+  "https://varun.ch/",
+  "https://www.bbc.com/",
+  "https://edition.cnn.com/",
+  "https://www.foxnews.com/",
+  "https://varun.ch/history",
+  "https://www.amazon.com/",
+  "https://quickz.org/",
+  "https://twitter.com/",
+];
+
+// fake websites (just make a fake url)
+// if the user selects one of these,
+// then we know they're purposely doing it wrong
+
+// one is a white square that should not be selected
+// 2 are black squares that need to be selected
+
+let fakeURL = "https://example.com/white/" + Math.random()
+websites.push(fakeURL);
+
+websites.push("https://example.com/black/" + Math.random() + "/fake");
+websites.push("https://example.com/black/" + Math.random() + "/fake");
+
+// randomize the order of the websites
+
+websites = websites.sort(() => Math.random() - 0.5);
+
+for (url of websites) {
+  addLink(url);
+}
+
+function addLink(url) {
+  let box = document.createElement('div');
+  box.classList.add('box');
+
+  let a = document.createElement('a');
+  a.href = url;
+
+  let overlay = document.createElement('div');
+  overlay.classList.add('overlay'); // the overlay prevents the user from clicking on the link or seeing the tooltip
+
+  if (url.startsWith('https://example.com/black/')) {
+    // these have to be selected
+    box.classList.add('fake-visited');
+    a.classList.add('fake-visited');
+  }
+
+  box.appendChild(a);
+  box.appendChild(overlay);
+  grid.appendChild(box);
+
+  overlay.addEventListener('click', () => {
+    overlay.classList.toggle('selected');
+  });
+}
+
+done.addEventListener('click', () => {
+  let selected = document.querySelectorAll('.captcha .grid .box .overlay.selected');
+
+  let selectedUrls = [];
+  let valid = true;
+
+  // check if the user has selected all the fake links
+
+  let fakeBoxes = document.querySelectorAll('.captcha .grid .box.fake-visited');
+
+  for (box of fakeBoxes) {
+    let isSelected = !!box.querySelector('.overlay.selected');
+
+    if (!isSelected) {
+      valid = false;
+    }
+  }
+
+  for (overlay of selected) {
+    let url = overlay.parentElement.querySelector('a').href;
+
+    if (url.startsWith('https://example.com/white/')) {
+      valid = false;
+    }
+
+    if (!url.startsWith('https://example.com/')) {
+      selectedUrls.push(url);
+    }
+  }
+
+  if (!valid) {
+    // return alert('You selected some white cells or missed some black cells. Please try again.');
+    return alert("CAPTCHA failed. Please try again.");
+  }
+
+  captcha.style.display = 'none';
+
+  let resultP = document.createElement('p');
+  resultP.innerText = "You have visited the following " + selectedUrls.length + " websites.";
+
+  let resultUl = document.createElement('ul');
+
+  for (url of selectedUrls) {
+    let li = document.createElement('li');
+    li.innerText = url;
+    resultUl.appendChild(li);
+  }
+
+  let tryAgain = document.createElement('a');
+  tryAgain.href = '/history';
+  tryAgain.innerText = "Try again";
+
+  let details = document.createElement('details');
+  let summary = document.createElement('summary');
+
+  summary.innerText = "Non-visited websites";
+  details.innerText = "The following websites (from this demo's list) have not been visited. Try visiting one and then reload this page.";
+
+  let nonVisited = document.createElement('ul');
+
+  for (url of websites) {
+    if (!selectedUrls.includes(url) && !url.startsWith('https://example.com/')) {
+      let li = document.createElement('li');
+      let a = document.createElement('a');
+      a.href = url;
+      a.innerText = url;
+      a.target = '_blank';
+      li.appendChild(a);
+      nonVisited.appendChild(li);
+    }
+  }
+
+  details.appendChild(summary);
+  details.appendChild(nonVisited);
+
+  results.children[1].remove()
+
+  results.appendChild(resultP);
+  results.appendChild(resultUl);
+  results.appendChild(details);
+  results.appendChild(tryAgain);
+
+  results.classList.remove('waiting');
+})

@@ -1,0 +1,9 @@
+{
+  "type": "module",
+  "dependencies": {
+    "chalk": "^5.0.0",
+    "cli-spinners": "^2.6.1",
+    "enquirer": "^2.3.6",
+    "ora": "^6.0.1"
+  }
+}

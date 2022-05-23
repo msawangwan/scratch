@@ -1,0 +1,5 @@
+services:
+  foo:
+    image: config-testing:latest
+  foo.bar:
+    image: config-testing:latest

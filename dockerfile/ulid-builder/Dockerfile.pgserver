@@ -1,0 +1,20 @@
+FROM postgres
+
+COPY pg_ulid.so pg_ulid.so
+
+# TODO:
+/usr/share/postgresql/14/extension/pg_ulid.control
+YOU NEED TO COPY INTO THIS DIR
+/usr/lib/postgresql/14/lib
+
+# NOTES:
+PGPASSWORD=1234 psql -U postgres postgres
+COPY pg_ulid.control pg_ulid.control
+COPY pg_ulid--0.0.4.sql pg_ulid--0.0.4.sql
+COPY pg_ulid_test.sql pg_ulid_test.sql
+COPY pg_ulid.o pg_ulid.o
+
+pg_ulid.control 27b630d366b3:/pg_ulid.control
+pg_ulid--0.0.4.sql 27b630d366b3:/pg_ulid--0.0.4.sql
+
+cp /pg_ulid.control /pg_ulid--0.0.4.sql .
